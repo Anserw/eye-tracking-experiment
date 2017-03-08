@@ -13,7 +13,6 @@ import socket
 import codecs
 from threading import Lock, Thread
 from multiprocessing import Event, Process, Queue
-from py3compat import *
 
 
 # # # # #

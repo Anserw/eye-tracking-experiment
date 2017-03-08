@@ -52,7 +52,8 @@ class Tracker(threading.Thread):
             cnt += 1
             if cnt % 10 == 0:
                 logging.info('waiting Tracker to be ready for %d seconds' % (float(cnt)/100))
-        self.frame_sum, self.frame_failed = 0, 0
+        self.frame_sum = 0
+        self.frame_failed = 0
         self.status = Status.starting
 
     def stop_current_track(self):

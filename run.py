@@ -24,14 +24,15 @@ def set_log_format():
 
 def main():
     parser = argparse.ArgumentParser(description="Assign task for a user based on the data in DB.")
+    parser.add_argument("-i", "--fromi", type=int, help="continue from i th video", default=0)
+    parser.add_argument("-m", "--male", type=bool, help="whether the user is male", default=True)
+    parser.add_argument("-a", "--age", type=int, help="user age", default=20)
+    parser.add_argument("name", type=int, help="user name")
+    args = parser.parse_args()
 
-    parser.add_argument("-w", "--workpath", type=str, help="work path")
-    parser.add_argument("-i", "--interpreter", type=str, help="interpreter such as python")
-    parser.add_argument("-t", "--task", type=str, help="binary file or script")
-    parser.add_argument("-c", "--continue", type=int, help="continue from i th video")
     set_log_format()
     exp = Experiment()
-    exp.start()
+    exp.start_from_i(args.fromi, args.name, args.male, args.age)
 
 if __name__ == '__main__':
     main()

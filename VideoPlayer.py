@@ -1,6 +1,8 @@
 import numpy as np
 from datetime import datetime
 import config
+from config import screen_height as H
+from config import screen_width as W
 from collections import deque
 import os
 from PIL import Image
@@ -18,7 +20,7 @@ class VideoPlayer():
         self.video_sum = len(self.video_list)
         self.set_userID(userID)
         self.window_name = 'show'
-        self.img_prepare = np.zeros((1080, 1920))
+        self.img_prepare = np.zeros((H, W))
         cv2.putText(self.img_prepare,
                     'Nice done!  Please wait for a moment . . .',
                     (400, 800),
@@ -26,7 +28,7 @@ class VideoPlayer():
                     2,
                     100,
                     2)
-        self.img_attention = np.ones((1080, 1920)) * 100
+        self.img_attention = np.ones((H, W)) * 100
         cv2.putText(self.img_attention,
                     'Please pay attention to your eye position',
                     (400, 800),
@@ -77,12 +79,15 @@ class VideoPlayer():
             frames = []
             logging.info('start to load the video')
             for frame in pl.get_frames():
+                frame = cv2.resize(frame, (W, H))
                 frames.append(frame)
             logging.info('the video has been loaded')
 
             wait_time = 900 / a_video_info['fps']
-            window_x = (config.screen_width - a_video_info['width']) / 2
-            window_y = (config.screen_height - a_video_info['height']) / 2
+            # window_x = (W - a_video_info['width']) / 2
+            # window_y = (H - a_video_info['height']) / 2
+            window_x = 0
+            window_y = 0
             logf.write('window xmin: {}'.format(window_x) + '\n')
             logf.write('window ymin: {}'.format(window_y) + '\n')
             # print wait_time
@@ -98,6 +103,9 @@ class VideoPlayer():
     def playall(self):
         for i in range(self.video_sum):
             self.play_i(i)
+
+    def stop(self):
+        cv2.destroyAllWindows()
 
     def load_yuv(self, file_path, width, height, frame_rate, bit_depth=8):
         pass
