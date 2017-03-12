@@ -27,7 +27,7 @@ def main():
     parser.add_argument("-i", "--fromi", type=int, help="continue from i th video", default=0)
     parser.add_argument("-m", "--male", type=bool, help="whether the user is male", default=True)
     parser.add_argument("-a", "--age", type=int, help="user age", default=20)
-    parser.add_argument("name", type=int, help="user name")
+    parser.add_argument("name", type=str, help="user name")
     args = parser.parse_args()
 
     set_log_format()
