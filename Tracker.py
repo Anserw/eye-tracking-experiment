@@ -25,7 +25,6 @@ class Tracker(threading.Thread):
         if not os.path.isdir(self.log_path):
             os.makedirs(self.log_path)
         self.eyetribe_log_filename = os.path.join(self.log_path, 'EyeTribe' + datetime.now().strftime('_%m-%d_%H-%M-%S'))
-        self.tracker = pytribe.EyeTribe(logfilename=self.eyetribe_log_filename)
 
         self.is_waiting = True
         self.thread_stop = False
@@ -36,6 +35,8 @@ class Tracker(threading.Thread):
         self.frame_sum = 0
         self.frame_failed = 0
         self.tracker_ok = True
+        self._end_time = None
+        self.plus_one_second = False
         pass
 
     def set_userID(self, userID):
@@ -46,6 +47,7 @@ class Tracker(threading.Thread):
     def start_track_video_i(self, index):
         self.video_index = index
         logging.info('start to track video %d' % index)
+        self.tracker = pytribe.EyeTribe(logfilename=self.eyetribe_log_filename)
         cnt = 0
         while self.status != Status.ready:
             time.sleep(0.01)
@@ -57,8 +59,14 @@ class Tracker(threading.Thread):
         self.status = Status.starting
 
     def stop_current_track(self):
-        self.status = Status.closing
-        logging.info('stop to track video %d' % self.video_index)
+        self._end_time = datetime.now()
+        self.plus_one_second = True
+        logging.info('stop tracking video %d, +1s ing' % self.video_index)
+        while self.status != Status.ready:
+            time.sleep(0.1)
+        logging.info('stop tracking video %d, done' % self.video_index)
+        self.tracker.close()
+        del self.tracker
         return self.frame_sum, self.frame_failed
 
     def _update_log_path(self):
@@ -80,6 +88,7 @@ class Tracker(threading.Thread):
             elif self.status == Status.listening:
                 frame_info = self.tracker._tracker.get_frame()
                 state = frame_info['state']
+                frame_info['now'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 if self.is_tracker_fail(state) or self.is_tracker_lost(state):
                     self.tracker_ok = False
                     self.frame_failed += 1
@@ -87,6 +96,12 @@ class Tracker(threading.Thread):
                     self.tracker_ok = True
                 self.frame_sum += 1
                 json.dump(frame_info, f)
+                f.write('\n')
+                if self.plus_one_second:
+                    frame_time = datetime.strptime(frame_info['timestamp'], "%Y-%m-%d %H:%M:%S.%f")
+                    if frame_time > self._end_time:
+                        self.status = Status.closing
+                        self.plus_one_second = False
             elif self.status == Status.closing:
                 f.close()
                 logging.info('frame sum: {}, failed sum: {}'.format(self.frame_sum, self.frame_failed))
@@ -99,7 +114,8 @@ class Tracker(threading.Thread):
                 f = open(logf_filename, 'a')
                 logging.info('open file: ' + logf_filename)
                 self.status = Status.listening
-            time.sleep(0.01)
+            if not self.plus_one_second:
+                time.sleep(0.01)
 
     def waiting(self):
         return self.is_waiting

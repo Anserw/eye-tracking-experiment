@@ -21,8 +21,9 @@ class Experiment():
             self.tracker.start_track_video_i(i)
             time.sleep(0.5)
             self.player.play_i(i)
+            self.player.show_black()
             frame_sum, frame_failed = self.tracker.stop_current_track()
-            if float(frame_failed) / frame_sum > 0.1:
+            if frame_sum > 0 and float(frame_failed) / frame_sum > 0.1:
                 self.player.show_attention()
         self.player.stop()
 

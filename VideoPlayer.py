@@ -21,6 +21,7 @@ class VideoPlayer():
         self.set_userID(userID)
         self.window_name = 'show'
         self.img_prepare = np.zeros((H, W))
+        self.img_black = np.zeros((H, W))
         cv2.putText(self.img_prepare,
                     'Nice done!  Please wait for a moment . . .',
                     (400, 800),
@@ -60,6 +61,12 @@ class VideoPlayer():
         cv2.waitKey(wait_ms)
         pass
 
+    def show_black(self, wait_ms=15):
+        cv2.imshow(self.window_name, self.img_black)
+        cv2.moveWindow(self.window_name, 0, 0)
+        cv2.waitKey(wait_ms)
+        pass
+
     def show_attention(self):
         cv2.imshow(self.window_name, self.img_attention)
         cv2.moveWindow(self.window_name, 0, 0)
@@ -67,7 +74,10 @@ class VideoPlayer():
 
     def play_i(self, i):
         logging.info('play video %d ' % i)
-        self.show_prepare(1)
+        if i == 0:
+            self.show_black()
+        else:
+            self.show_prepare(1)
         logf_filename = os.path.join(self.log_path, 'video_{}_{}.txt'.format(i, datetime.now().strftime('%m-%d-%H-%M-%S')))
         with open(logf_filename, 'w') as logf:
             logging.info('play detail is written to ' + logf_filename)

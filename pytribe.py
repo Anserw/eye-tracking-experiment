@@ -40,6 +40,7 @@ class EyeTribe:
         self._separator = u'\t'
         self._log_header()
         self._queue = Queue()
+        self._logdata = False
 
         # initialize connection
         self._connection = connection(host=host, port=port)
@@ -57,30 +58,30 @@ class EyeTribe:
         self._hbthread.name = 'heartbeater'
 
         # initialize sample streamer
-        self._streaming = True
-        self._samplefreq = self._tracker.get_framerate()
-        self._intsampletime = 1.0 / self._samplefreq
-        self._clockdiff = None
-        self._newestframe = self._tracker.get_frame()
-        self._ssthread = Thread(target=self._stream_samples, args=[self._queue])
-        self._ssthread.daemon = True
-        self._ssthread.name = 'samplestreamer'
-
-        # initialize data processer
-        self._processing = True
-        self._logdata = False
-        self._currentsample = copy.deepcopy(self._newestframe)
-        self._dpthread = Thread(target=self._process_samples, args=[self._queue])
-        self._dpthread.daemon = True
-        self._dpthread.name = 'dataprocessor'
+        # self._streaming = True
+        # self._samplefreq = self._tracker.get_framerate()
+        # self._intsampletime = 1.0 / self._samplefreq
+        # self._clockdiff = None
+        # self._newestframe = self._tracker.get_frame()
+        # self._ssthread = Thread(target=self._stream_samples, args=[self._queue])
+        # self._ssthread.daemon = True
+        # self._ssthread.name = 'samplestreamer'
+        #
+        # # initialize data processer
+        # self._processing = True
+        # self._logdata = False
+        # self._currentsample = copy.deepcopy(self._newestframe)
+        # self._dpthread = Thread(target=self._process_samples, args=[self._queue])
+        # self._dpthread.daemon = True
+        # self._dpthread.name = 'dataprocessor'
 
         # start all threads
         self._hbthread.start()
-        self._ssthread.start()
-        self._dpthread.start()
+        # self._ssthread.start()
+        # self._dpthread.start()
 
         # initialize calibration
-        self.calibration = calibration(self._connection)
+        # self.calibration = calibration(self._connection)
 
     def start_recording(self):
 
